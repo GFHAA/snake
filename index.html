@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake</title>
+  </head>
+  <body>
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Змейка</title>
+        <style>
+          body {
+            font-family: Tahoma;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          canvas {
+            border: 5px solid #000;
+          }
+          .end {
+            z-index: 1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            text-align: center;
+          }
+          .hide {
+            display: none;
+          }
+          .wrapper {
+            padding: 10px;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            text-align: center;
+          }
+          .content {
+            font-size: 20px;
+            border-radius: 5px;
+            padding: 20px;
+            font-weight: 700;
+            display: inline-block;
+          }
+          button {
+            cursor: pointer;
+            padding: 10%;
+            width: 10vw;
+            background-color: rgb(64, 15, 179);
+            min-height: 40px;
+            border: none;
+            border-radius: 10px;
+            color: blanchedalmond;
+            outline: none;
+          }
+          button:hover {
+            transition: 0.3s;
+            background-color: rgb(80, 35, 185);
+          }
+        </style>
+      </head>
+
+      <body>
+        <div class="hide end">
+          <div class="wrapper">
+            <div class="content">
+              <p>Вы проиграли!</p>
+              <button onclick="playAgain()">Начать сначала</button>
+            </div>
+          </div>
+        </div>
+        <canvas width="400" height="400" id="game"></canvas>
+      </body>
+      <script>
+        let canvas = document.querySelector("canvas");
+        let context = canvas.getContext("2d");
+        let square = 16;
+        let score = 0;
+        let fps = 15;
+        function getRandomInt(min, max) {
+          return Math.floor(Math.random() * (max - min)) + min;
+        }
+        function endGame() {
+          console.log("Игра окончена");
+          clearInterval(gameId);
+          document.querySelector(".end").classList.toggle("hide");
+          snake = {
+            x: 16 * 5,
+            y: 16 * 5,
+            vx: square,
+            vy: 0,
+            cells: [],
+            maxCells: 4,
+          };
+          apple = {
+            x: getRandomInt(0, 25) * square,
+            y: getRandomInt(0, 25) * square,
+          };
+          score = 0;
+        }
+        function playAgain() {
+          score = 0;
+          document.querySelector(".end").classList.toggle("hide");
+          gameId = setInterval(game, 1000 / fps);
+        }
+        let snake = {
+          x: 16 * 5,
+          y: 16 * 5,
+          vx: square,
+          vy: 0,
+          cells: [],
+          maxCells: 4,
+        };
+        let apple = {
+          x: getRandomInt(0, 25) * square,
+          y: getRandomInt(0, 25) * square,
+        };
+
+        function game() {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.fillStyle = "#000";
+          context.font = "50px tahoma";
+          context.fillText(score, 15, 50);
+          snake.x += snake.vx;
+          snake.y += snake.vy;
+
+          if (snake.x < 0) {
+            snake.x = canvas.width - square;
+          }
+          if (snake.x >= canvas.width) {
+            snake.x = 0;
+          }
+
+          if (snake.y < 0) {
+            snake.y = canvas.height - square;
+          }
+          if (snake.y >= canvas.height) {
+            snake.y = 0;
+          }
+
+          snake.cells.unshift({ x: snake.x, y: snake.y });
+          if (snake.cells.length > snake.maxCells) {
+            snake.cells.pop();
+          }
+
+          context.fillStyle = "green";
+          context.fillRect(apple.x, apple.y, square, square);
+
+          context.fillStyle = "#e00d34";
+
+          snake.cells.forEach(function (cell, index) {
+            context.fillRect(cell.x, cell.y, square - 1, square - 1);
+            if (cell.x === apple.x && cell.y === apple.y) {
+              snake.maxCells += 1;
+              apple.x = getRandomInt(0, 25) * square;
+              apple.y = getRandomInt(0, 25) * square;
+              score++;
+            }
+            for (let i = index + 1; i < snake.cells.length; i++) {
+              if (cell.x == snake.cells[i].x && cell.y == snake.cells[i].y) {
+                endGame();
+              }
+            }
+          });
+        }
+        document.addEventListener("keydown", function (e) {
+          // console.log(e);
+          if (e.key == "ArrowRight" && snake.vx == 0) {
+            snake.vx = square;
+            snake.vy = 0;
+          }
+          if (e.key == "ArrowLeft" && snake.vx == 0) {
+            snake.vx = -square;
+            snake.vy = 0;
+          }
+          if (e.key == "ArrowUp" && snake.vy == 0) {
+            snake.vx = 0;
+            snake.vy = -square;
+          }
+          if (e.key == "ArrowDown" && snake.vy == 0) {
+            snake.vx = 0;
+            snake.vy = square;
+          }
+        });
+        let gameId = setInterval(game, 1000 / fps);
+      </script>
+    </html>
+  </body>
+</html>
